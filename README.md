@@ -13,11 +13,11 @@ This repository contains the PyTorch implementation of the Dual-Domain Iterative
 If you use this code for your research or project, please cite:
 
     @article{chen2023joint,
-  title={Joint Denoising and Few-angle Reconstruction for Low-dose Cardiac SPECT Using a Dual-domain Iterative Network with Adaptive Data Consistency},
-  author={Chen, Xiongchao and Zhou, Bo and Xie, Huidong and Guo, Xueqi and Liu, Qiong and Sinusas, Albert J and Liu, Chi},
-  journal={arXiv preprint arXiv:2305.10328},
-  year={2023}
-}
+          title={Joint Denoising and Few-angle Reconstruction for Low-dose Cardiac SPECT Using a Dual-domain Iterative Network with Adaptive Data Consistency},
+          author={Chen, Xiongchao and Zhou, Bo and Xie, Huidong and Guo, Xueqi and Liu, Qiong and Sinusas, Albert J and Liu, Chi},
+          journal={arXiv preprint arXiv:2305.10328},
+          year={2023}
+        }
 
 
  ### Environment and Dependencies
