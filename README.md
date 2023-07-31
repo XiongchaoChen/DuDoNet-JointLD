@@ -4,5 +4,5 @@ Xiongchao Chen, Bo Zhou, Huidong Xie, Xueqi Guo, Qiong Liu, Albert J. Sinusas, C
 
 [[Paper Link](https://arxiv.org/abs/2305.10328)]
 
-![image](IMAGES/Overview.png)
-![image](IMAGES/ADC.png)
+![image](IMAGE/Overview.png)
+![image](IMAGE/ADC.png)
