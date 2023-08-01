@@ -139,7 +139,7 @@ class CNNModel(nn.Module):
         # self.Recon_FD_LA  = data['Recon_FD_LA_EM'].to(self.device).float()
         # self.Recon_LD_FA  = data['Recon_LD_FA_EM'].to(self.device).float()
         self.Recon_LD_LA  = data['Recon_LD_LA_EM'].to(self.device).float()
-        self.Mask = data['Mask'].to(self.device).float()
+        # self.Mask = data['Mask'].to(self.device).float()
 
         self.Proj_FD_FA  = data['Proj_FD_FA_EM'].to(self.device).float()
         self.Proj_FD_LA  = data['Proj_FD_LA_EM'].to(self.device).float()
