@@ -15,15 +15,10 @@ class CardiacSPECT_Train(Dataset):
         self.data_dir = os.path.join(self.root, 'train')
         self.data_files = sorted([os.path.join(self.data_dir, f) for f in os.listdir(self.data_dir) if f.endswith('.h5')])
 
-        self.Amap_all = []
         self.Recon_FD_FA_EM_all = []
-        self.Recon_FD_LA_EM_all = []
-        self.Recon_LD_FA_EM_all = []
         self.Recon_LD_LA_EM_all = []
-        self.Mask_all = []
         self.Proj_FD_FA_EM_all = []
         self.Proj_FD_LA_EM_all = []
-        self.Proj_LD_FA_EM_all = []
         self.Proj_LD_LA_EM_all = []
         self.Mask_Proj_all = []
 
@@ -32,46 +27,25 @@ class CardiacSPECT_Train(Dataset):
             print('Patching: ' + str(filename))
 
             with h5py.File(filename, 'r') as f:
-                Amap = f['Amap'][...].transpose(2, 1, 0)
                 Recon_FD_FA_EM  = f['Recon_FD_FA_EM'][...].transpose(2, 1, 0)
-                Recon_FD_LA_EM  = f['Recon_FD_LA_EM'][...].transpose(2, 1, 0)
-                Recon_LD_FA_EM  = f['Recon_LD_FA_EM'][...].transpose(2, 1, 0)
                 Recon_LD_LA_EM  = f['Recon_LD_LA_EM'][...].transpose(2, 1, 0)
-                Mask = f['Mask'][...].transpose(2, 1, 0)
                 Proj_FD_FA_EM  = f['Proj_FD_FA_EM'][...].transpose(2, 1, 0)
                 Proj_FD_LA_EM  = f['Proj_FD_LA_EM'][...].transpose(2, 1, 0)
-                Proj_LD_FA_EM  = f['Proj_LD_FA_EM'][...].transpose(2, 1, 0)
                 Proj_LD_LA_EM  = f['Proj_LD_LA_EM'][...].transpose(2, 1, 0)
                 Mask_Proj  = f['Mask_Proj'][...].transpose(2, 1, 0)
 
             # create the random index for cropping patches
-            X_template = Amap
+            X_template = Recon_FD_FA_EM
             indexes = get_random_patch_indexes(data=X_template, patch_size=[72, 72, 40], num_patches=1, padding='VALID')
 
             # use index to crop patches
-            X_patches = get_patches_from_indexes(image=Amap, indexes=indexes, patch_size=[72, 72, 40], padding='VALID', dtype=None)
-            X_patches = X_patches[:, np.newaxis, :, :, :]
-            self.Amap_all.append(X_patches)
-
             X_patches = get_patches_from_indexes(image=Recon_FD_FA_EM, indexes=indexes, patch_size=[72, 72, 40], padding='VALID', dtype=None)
             X_patches = X_patches[:, np.newaxis, :, :, :]
             self.Recon_FD_FA_EM_all.append(X_patches)
 
-            X_patches = get_patches_from_indexes(image=Recon_FD_LA_EM, indexes=indexes, patch_size=[72, 72, 40], padding='VALID', dtype=None)
-            X_patches = X_patches[:, np.newaxis, :, :, :]
-            self.Recon_FD_LA_EM_all.append(X_patches)
-
-            X_patches = get_patches_from_indexes(image=Recon_LD_FA_EM, indexes=indexes, patch_size=[72, 72, 40], padding='VALID', dtype=None)
-            X_patches = X_patches[:, np.newaxis, :, :, :]
-            self.Recon_LD_FA_EM_all.append(X_patches)
-
             X_patches = get_patches_from_indexes(image=Recon_LD_LA_EM, indexes=indexes, patch_size=[72, 72, 40], padding='VALID', dtype=None)
             X_patches = X_patches[:, np.newaxis, :, :, :]
             self.Recon_LD_LA_EM_all.append(X_patches)
-
-            X_patches = get_patches_from_indexes(image=Mask, indexes=indexes, patch_size=[72, 72, 40], padding='VALID', dtype=None)
-            X_patches = X_patches[:, np.newaxis, :, :, :]
-            self.Mask_all.append(X_patches)
 
 
             # create the random index for cropping patches
@@ -87,10 +61,6 @@ class CardiacSPECT_Train(Dataset):
             X_patches = X_patches[:, np.newaxis, :, :, :]
             self.Proj_FD_LA_EM_all.append(X_patches)
 
-            X_patches = get_patches_from_indexes(image=Proj_LD_FA_EM, indexes=indexes, patch_size=[32, 32, 20], padding='VALID', dtype=None)
-            X_patches = X_patches[:, np.newaxis, :, :, :]
-            self.Proj_LD_FA_EM_all.append(X_patches)
-
             X_patches = get_patches_from_indexes(image=Proj_LD_LA_EM, indexes=indexes, patch_size=[32, 32, 20], padding='VALID', dtype=None)
             X_patches = X_patches[:, np.newaxis, :, :, :]
             self.Proj_LD_LA_EM_all.append(X_patches)
@@ -99,58 +69,39 @@ class CardiacSPECT_Train(Dataset):
             X_patches = X_patches[:, np.newaxis, :, :, :]
             self.Mask_Proj_all.append(X_patches)
 
-        self.Amap_all = np.concatenate(self.Amap_all, 0)
         self.Recon_FD_FA_EM_all = np.concatenate(self.Recon_FD_FA_EM_all, 0)
-        self.Recon_FD_LA_EM_all = np.concatenate(self.Recon_FD_LA_EM_all, 0)
-        self.Recon_LD_FA_EM_all = np.concatenate(self.Recon_LD_FA_EM_all, 0)
         self.Recon_LD_LA_EM_all = np.concatenate(self.Recon_LD_LA_EM_all, 0)
-        self.Mask_all = np.concatenate(self.Mask_all, 0)
         self.Proj_FD_FA_EM_all = np.concatenate(self.Proj_FD_FA_EM_all, 0)
         self.Proj_FD_LA_EM_all = np.concatenate(self.Proj_FD_LA_EM_all, 0)
-        self.Proj_LD_FA_EM_all = np.concatenate(self.Proj_LD_FA_EM_all, 0)
         self.Proj_LD_LA_EM_all = np.concatenate(self.Proj_LD_LA_EM_all, 0)
         self.Mask_Proj_all = np.concatenate(self.Mask_Proj_all, 0)
 
     def __getitem__(self, index):
-        Amap = self.Amap_all[index, ...]
         Recon_FD_FA_EM = self.Recon_FD_FA_EM_all[index, ...]
-        Recon_FD_LA_EM = self.Recon_FD_LA_EM_all[index, ...]
-        Recon_LD_FA_EM = self.Recon_LD_FA_EM_all[index, ...]
         Recon_LD_LA_EM = self.Recon_LD_LA_EM_all[index, ...]
-        Mask = self.Mask_all[index, ...]
         Proj_FD_FA_EM  = self.Proj_FD_FA_EM_all[index, ...]
         Proj_FD_LA_EM  = self.Proj_FD_LA_EM_all[index, ...]
-        Proj_LD_FA_EM  = self.Proj_LD_FA_EM_all[index, ...]
         Proj_LD_LA_EM  = self.Proj_LD_LA_EM_all[index, ...]
         Mask_Proj  = self.Mask_Proj_all[index, ...]
 
-        Amap = torch.from_numpy(Amap.copy())
         Recon_FD_FA_EM = torch.from_numpy(Recon_FD_FA_EM.copy())
-        Recon_FD_LA_EM = torch.from_numpy(Recon_FD_LA_EM.copy())
-        Recon_LD_FA_EM = torch.from_numpy(Recon_LD_FA_EM.copy())
         Recon_LD_LA_EM = torch.from_numpy(Recon_LD_LA_EM.copy())
-        Mask = torch.from_numpy(Mask.copy())
         Proj_FD_FA_EM = torch.from_numpy(Proj_FD_FA_EM.copy())
         Proj_FD_LA_EM = torch.from_numpy(Proj_FD_LA_EM.copy())
-        Proj_LD_FA_EM = torch.from_numpy(Proj_LD_FA_EM.copy())
         Proj_LD_LA_EM = torch.from_numpy(Proj_LD_LA_EM.copy())
         Mask_Proj = torch.from_numpy(Mask_Proj.copy())
 
         return {'Amap': Amap,
                 'Recon_FD_FA_EM': Recon_FD_FA_EM,
-                'Recon_FD_LA_EM': Recon_FD_LA_EM,
-                'Recon_LD_FA_EM': Recon_LD_FA_EM,
                 'Recon_LD_LA_EM': Recon_LD_LA_EM,
-                'Mask': Mask,
                 'Proj_FD_FA_EM': Proj_FD_FA_EM,
                 'Proj_FD_LA_EM': Proj_FD_LA_EM,
-                'Proj_LD_FA_EM': Proj_LD_FA_EM,
                 'Proj_LD_LA_EM': Proj_LD_LA_EM,
                 'Mask_Proj': Mask_Proj,
                 'opts_drop': True}
 
     def __len__(self):
-        return self.Amap_all.shape[0]
+        return self.Recon_FD_FA_EM_all.shape[0]
 
 
 
@@ -166,15 +117,10 @@ class CardiacSPECT_Test(Dataset):
         self.data_dir = os.path.join(self.root, 'test')  # Attention difference here
         self.data_files = sorted([os.path.join(self.data_dir, f) for f in os.listdir(self.data_dir) if f.endswith('.h5')])
 
-        self.Amap_all = []
         self.Recon_FD_FA_EM_all = []
-        self.Recon_FD_LA_EM_all = []
-        self.Recon_LD_FA_EM_all = []
         self.Recon_LD_LA_EM_all = []
-        self.Mask_all = []
         self.Proj_FD_FA_EM_all = []
         self.Proj_FD_LA_EM_all = []
-        self.Proj_LD_FA_EM_all = []
         self.Proj_LD_LA_EM_all = []
         self.Mask_Proj_all = []
 
@@ -183,46 +129,26 @@ class CardiacSPECT_Test(Dataset):
             print('Patching: ' + str(filename))
 
             with h5py.File(filename, 'r') as f:
-                Amap = f['Amap'][...].transpose(2, 1, 0)
                 Recon_FD_FA_EM = f['Recon_FD_FA_EM'][...].transpose(2, 1, 0)
-                Recon_FD_LA_EM = f['Recon_FD_LA_EM'][...].transpose(2, 1, 0)
-                Recon_LD_FA_EM = f['Recon_LD_FA_EM'][...].transpose(2, 1, 0)
                 Recon_LD_LA_EM = f['Recon_LD_LA_EM'][...].transpose(2, 1, 0)
-                Mask = f['Mask'][...].transpose(2, 1, 0)
                 Proj_FD_FA_EM = f['Proj_FD_FA_EM'][...].transpose(2, 1, 0)
                 Proj_FD_LA_EM = f['Proj_FD_LA_EM'][...].transpose(2, 1, 0)
-                Proj_LD_FA_EM = f['Proj_LD_FA_EM'][...].transpose(2, 1, 0)
                 Proj_LD_LA_EM = f['Proj_LD_LA_EM'][...].transpose(2, 1, 0)
                 Mask_Proj = f['Mask_Proj'][...].transpose(2, 1, 0)
 
             # create the random index for cropping patches
-            X_template = Amap
+            X_template = Recon_FD_FA_EM
             indexes = get_random_patch_indexes(data=X_template, patch_size=[72, 72, 40], num_patches=1, padding='VALID')
 
             # use index to crop patches
-            X_patches = get_patches_from_indexes(image=Amap, indexes=indexes, patch_size=[72, 72, 40], padding='VALID', dtype=None)
-            X_patches = X_patches[:, np.newaxis, :, :, :]
-            self.Amap_all.append(X_patches)
-
             X_patches = get_patches_from_indexes(image=Recon_FD_FA_EM, indexes=indexes, patch_size=[72, 72, 40], padding='VALID', dtype=None)
             X_patches = X_patches[:, np.newaxis, :, :, :]
             self.Recon_FD_FA_EM_all.append(X_patches)
-
-            X_patches = get_patches_from_indexes(image=Recon_FD_LA_EM, indexes=indexes, patch_size=[72, 72, 40], padding='VALID', dtype=None)
-            X_patches = X_patches[:, np.newaxis, :, :, :]
-            self.Recon_FD_LA_EM_all.append(X_patches)
-
-            X_patches = get_patches_from_indexes(image=Recon_LD_FA_EM, indexes=indexes, patch_size=[72, 72, 40], padding='VALID', dtype=None)
-            X_patches = X_patches[:, np.newaxis, :, :, :]
-            self.Recon_LD_FA_EM_all.append(X_patches)
 
             X_patches = get_patches_from_indexes(image=Recon_LD_LA_EM, indexes=indexes, patch_size=[72, 72, 40], padding='VALID', dtype=None)
             X_patches = X_patches[:, np.newaxis, :, :, :]
             self.Recon_LD_LA_EM_all.append(X_patches)
 
-            X_patches = get_patches_from_indexes(image=Mask, indexes=indexes, patch_size=[72, 72, 40], padding='VALID', dtype=None)
-            X_patches = X_patches[:, np.newaxis, :, :, :]
-            self.Mask_all.append(X_patches)
 
             # create the random index for cropping patches
             X_template = Proj_FD_FA_EM
@@ -237,9 +163,6 @@ class CardiacSPECT_Test(Dataset):
             X_patches = X_patches[:, np.newaxis, :, :, :]
             self.Proj_FD_LA_EM_all.append(X_patches)
 
-            X_patches = get_patches_from_indexes(image=Proj_LD_FA_EM, indexes=indexes, patch_size=[32, 32, 20], padding='VALID', dtype=None)
-            X_patches = X_patches[:, np.newaxis, :, :, :]
-            self.Proj_LD_FA_EM_all.append(X_patches)
 
             X_patches = get_patches_from_indexes(image=Proj_LD_LA_EM, indexes=indexes, patch_size=[32, 32, 20], padding='VALID', dtype=None)
             X_patches = X_patches[:, np.newaxis, :, :, :]
@@ -249,58 +172,38 @@ class CardiacSPECT_Test(Dataset):
             X_patches = X_patches[:, np.newaxis, :, :, :]
             self.Mask_Proj_all.append(X_patches)
 
-        self.Amap_all = np.concatenate(self.Amap_all, 0)
         self.Recon_FD_FA_EM_all = np.concatenate(self.Recon_FD_FA_EM_all, 0)
-        self.Recon_FD_LA_EM_all = np.concatenate(self.Recon_FD_LA_EM_all, 0)
-        self.Recon_LD_FA_EM_all = np.concatenate(self.Recon_LD_FA_EM_all, 0)
         self.Recon_LD_LA_EM_all = np.concatenate(self.Recon_LD_LA_EM_all, 0)
-        self.Mask_all = np.concatenate(self.Mask_all, 0)
         self.Proj_FD_FA_EM_all = np.concatenate(self.Proj_FD_FA_EM_all, 0)
         self.Proj_FD_LA_EM_all = np.concatenate(self.Proj_FD_LA_EM_all, 0)
-        self.Proj_LD_FA_EM_all = np.concatenate(self.Proj_LD_FA_EM_all, 0)
         self.Proj_LD_LA_EM_all = np.concatenate(self.Proj_LD_LA_EM_all, 0)
         self.Mask_Proj_all = np.concatenate(self.Mask_Proj_all, 0)
 
     def __getitem__(self, index):
-        Amap = self.Amap_all[index, ...]
         Recon_FD_FA_EM = self.Recon_FD_FA_EM_all[index, ...]
-        Recon_FD_LA_EM = self.Recon_FD_LA_EM_all[index, ...]
-        Recon_LD_FA_EM = self.Recon_LD_FA_EM_all[index, ...]
         Recon_LD_LA_EM = self.Recon_LD_LA_EM_all[index, ...]
-        Mask = self.Mask_all[index, ...]
         Proj_FD_FA_EM = self.Proj_FD_FA_EM_all[index, ...]
         Proj_FD_LA_EM = self.Proj_FD_LA_EM_all[index, ...]
-        Proj_LD_FA_EM = self.Proj_LD_FA_EM_all[index, ...]
         Proj_LD_LA_EM = self.Proj_LD_LA_EM_all[index, ...]
         Mask_Proj = self.Mask_Proj_all[index, ...]
 
-        Amap = torch.from_numpy(Amap.copy())
         Recon_FD_FA_EM = torch.from_numpy(Recon_FD_FA_EM.copy())
-        Recon_FD_LA_EM = torch.from_numpy(Recon_FD_LA_EM.copy())
-        Recon_LD_FA_EM = torch.from_numpy(Recon_LD_FA_EM.copy())
         Recon_LD_LA_EM = torch.from_numpy(Recon_LD_LA_EM.copy())
-        Mask = torch.from_numpy(Mask.copy())
         Proj_FD_FA_EM = torch.from_numpy(Proj_FD_FA_EM.copy())
         Proj_FD_LA_EM = torch.from_numpy(Proj_FD_LA_EM.copy())
-        Proj_LD_FA_EM = torch.from_numpy(Proj_LD_FA_EM.copy())
         Proj_LD_LA_EM = torch.from_numpy(Proj_LD_LA_EM.copy())
         Mask_Proj = torch.from_numpy(Mask_Proj.copy())
 
-        return {'Amap': Amap,
-                'Recon_FD_FA_EM': Recon_FD_FA_EM,
-                'Recon_FD_LA_EM': Recon_FD_LA_EM,
-                'Recon_LD_FA_EM': Recon_LD_FA_EM,
+        return {'Recon_FD_FA_EM': Recon_FD_FA_EM,
                 'Recon_LD_LA_EM': Recon_LD_LA_EM,
-                'Mask': Mask,
                 'Proj_FD_FA_EM': Proj_FD_FA_EM,
                 'Proj_FD_LA_EM': Proj_FD_LA_EM,
-                'Proj_LD_FA_EM': Proj_LD_FA_EM,
                 'Proj_LD_LA_EM': Proj_LD_LA_EM,
                 'Mask_Proj': Mask_Proj,
                 'opts_drop': False}
 
     def __len__(self):
-        return self.Amap_all.shape[0]
+        return self.Recon_FD_FA_EM_all.shape[0]
 
 
 
@@ -317,15 +220,10 @@ class CardiacSPECT_Valid(Dataset):
         self.data_dir = os.path.join(self.root, 'valid')  # Attention difference here
         self.data_files = sorted([os.path.join(self.data_dir, f) for f in os.listdir(self.data_dir) if f.endswith('.h5')])
 
-        self.Amap_all = []
         self.Recon_FD_FA_EM_all = []
-        self.Recon_FD_LA_EM_all = []
-        self.Recon_LD_FA_EM_all = []
         self.Recon_LD_LA_EM_all = []
-        self.Mask_all = []
         self.Proj_FD_FA_EM_all = []
         self.Proj_FD_LA_EM_all = []
-        self.Proj_LD_FA_EM_all = []
         self.Proj_LD_LA_EM_all = []
         self.Mask_Proj_all = []
 
@@ -334,46 +232,25 @@ class CardiacSPECT_Valid(Dataset):
             print('Patching: ' + str(filename))
 
             with h5py.File(filename, 'r') as f:
-                Amap = f['Amap'][...].transpose(2, 1, 0)
                 Recon_FD_FA_EM = f['Recon_FD_FA_EM'][...].transpose(2, 1, 0)
-                Recon_FD_LA_EM = f['Recon_FD_LA_EM'][...].transpose(2, 1, 0)
-                Recon_LD_FA_EM = f['Recon_LD_FA_EM'][...].transpose(2, 1, 0)
                 Recon_LD_LA_EM = f['Recon_LD_LA_EM'][...].transpose(2, 1, 0)
-                Mask = f['Mask'][...].transpose(2, 1, 0)
                 Proj_FD_FA_EM = f['Proj_FD_FA_EM'][...].transpose(2, 1, 0)
                 Proj_FD_LA_EM = f['Proj_FD_LA_EM'][...].transpose(2, 1, 0)
-                Proj_LD_FA_EM = f['Proj_LD_FA_EM'][...].transpose(2, 1, 0)
                 Proj_LD_LA_EM = f['Proj_LD_LA_EM'][...].transpose(2, 1, 0)
                 Mask_Proj = f['Mask_Proj'][...].transpose(2, 1, 0)
 
             # create the random index for cropping patches
-            X_template = Amap
+            X_template = Recon_FD_FA_EM
             indexes = get_random_patch_indexes(data=X_template, patch_size=[72, 72, 40], num_patches=1, padding='VALID')
 
             # use index to crop patches
-            X_patches = get_patches_from_indexes(image=Amap, indexes=indexes, patch_size=[72, 72, 40], padding='VALID', dtype=None)
-            X_patches = X_patches[:, np.newaxis, :, :, :]
-            self.Amap_all.append(X_patches)
-
             X_patches = get_patches_from_indexes(image=Recon_FD_FA_EM, indexes=indexes, patch_size=[72, 72, 40], padding='VALID', dtype=None)
             X_patches = X_patches[:, np.newaxis, :, :, :]
             self.Recon_FD_FA_EM_all.append(X_patches)
 
-            X_patches = get_patches_from_indexes(image=Recon_FD_LA_EM, indexes=indexes, patch_size=[72, 72, 40], padding='VALID', dtype=None)
-            X_patches = X_patches[:, np.newaxis, :, :, :]
-            self.Recon_FD_LA_EM_all.append(X_patches)
-
-            X_patches = get_patches_from_indexes(image=Recon_LD_FA_EM, indexes=indexes, patch_size=[72, 72, 40], padding='VALID', dtype=None)
-            X_patches = X_patches[:, np.newaxis, :, :, :]
-            self.Recon_LD_FA_EM_all.append(X_patches)
-
             X_patches = get_patches_from_indexes(image=Recon_LD_LA_EM, indexes=indexes, patch_size=[72, 72, 40], padding='VALID', dtype=None)
             X_patches = X_patches[:, np.newaxis, :, :, :]
             self.Recon_LD_LA_EM_all.append(X_patches)
-
-            X_patches = get_patches_from_indexes(image=Mask, indexes=indexes, patch_size=[72, 72, 40], padding='VALID', dtype=None)
-            X_patches = X_patches[:, np.newaxis, :, :, :]
-            self.Mask_all.append(X_patches)
 
             # create the random index for cropping patches
             X_template = Proj_FD_FA_EM
@@ -388,10 +265,6 @@ class CardiacSPECT_Valid(Dataset):
             X_patches = X_patches[:, np.newaxis, :, :, :]
             self.Proj_FD_LA_EM_all.append(X_patches)
 
-            X_patches = get_patches_from_indexes(image=Proj_LD_FA_EM, indexes=indexes, patch_size=[32, 32, 20], padding='VALID', dtype=None)
-            X_patches = X_patches[:, np.newaxis, :, :, :]
-            self.Proj_LD_FA_EM_all.append(X_patches)
-
             X_patches = get_patches_from_indexes(image=Proj_LD_LA_EM, indexes=indexes, patch_size=[32, 32, 20], padding='VALID', dtype=None)
             X_patches = X_patches[:, np.newaxis, :, :, :]
             self.Proj_LD_LA_EM_all.append(X_patches)
@@ -400,58 +273,39 @@ class CardiacSPECT_Valid(Dataset):
             X_patches = X_patches[:, np.newaxis, :, :, :]
             self.Mask_Proj_all.append(X_patches)
 
-        self.Amap_all = np.concatenate(self.Amap_all, 0)
         self.Recon_FD_FA_EM_all = np.concatenate(self.Recon_FD_FA_EM_all, 0)
-        self.Recon_FD_LA_EM_all = np.concatenate(self.Recon_FD_LA_EM_all, 0)
-        self.Recon_LD_FA_EM_all = np.concatenate(self.Recon_LD_FA_EM_all, 0)
         self.Recon_LD_LA_EM_all = np.concatenate(self.Recon_LD_LA_EM_all, 0)
-        self.Mask_all = np.concatenate(self.Mask_all, 0)
         self.Proj_FD_FA_EM_all = np.concatenate(self.Proj_FD_FA_EM_all, 0)
         self.Proj_FD_LA_EM_all = np.concatenate(self.Proj_FD_LA_EM_all, 0)
-        self.Proj_LD_FA_EM_all = np.concatenate(self.Proj_LD_FA_EM_all, 0)
         self.Proj_LD_LA_EM_all = np.concatenate(self.Proj_LD_LA_EM_all, 0)
         self.Mask_Proj_all = np.concatenate(self.Mask_Proj_all, 0)
 
     def __getitem__(self, index):
-        Amap = self.Amap_all[index, ...]
         Recon_FD_FA_EM = self.Recon_FD_FA_EM_all[index, ...]
-        Recon_FD_LA_EM = self.Recon_FD_LA_EM_all[index, ...]
-        Recon_LD_FA_EM = self.Recon_LD_FA_EM_all[index, ...]
         Recon_LD_LA_EM = self.Recon_LD_LA_EM_all[index, ...]
-        Mask = self.Mask_all[index, ...]
         Proj_FD_FA_EM = self.Proj_FD_FA_EM_all[index, ...]
         Proj_FD_LA_EM = self.Proj_FD_LA_EM_all[index, ...]
-        Proj_LD_FA_EM = self.Proj_LD_FA_EM_all[index, ...]
         Proj_LD_LA_EM = self.Proj_LD_LA_EM_all[index, ...]
         Mask_Proj = self.Mask_Proj_all[index, ...]
 
-        Amap = torch.from_numpy(Amap.copy())
         Recon_FD_FA_EM = torch.from_numpy(Recon_FD_FA_EM.copy())
-        Recon_FD_LA_EM = torch.from_numpy(Recon_FD_LA_EM.copy())
-        Recon_LD_FA_EM = torch.from_numpy(Recon_LD_FA_EM.copy())
         Recon_LD_LA_EM = torch.from_numpy(Recon_LD_LA_EM.copy())
-        Mask = torch.from_numpy(Mask.copy())
         Proj_FD_FA_EM = torch.from_numpy(Proj_FD_FA_EM.copy())
         Proj_FD_LA_EM = torch.from_numpy(Proj_FD_LA_EM.copy())
-        Proj_LD_FA_EM = torch.from_numpy(Proj_LD_FA_EM.copy())
         Proj_LD_LA_EM = torch.from_numpy(Proj_LD_LA_EM.copy())
         Mask_Proj = torch.from_numpy(Mask_Proj.copy())
 
         return {'Amap': Amap,
                 'Recon_FD_FA_EM': Recon_FD_FA_EM,
-                'Recon_FD_LA_EM': Recon_FD_LA_EM,
-                'Recon_LD_FA_EM': Recon_LD_FA_EM,
                 'Recon_LD_LA_EM': Recon_LD_LA_EM,
-                'Mask': Mask,
                 'Proj_FD_FA_EM': Proj_FD_FA_EM,
                 'Proj_FD_LA_EM': Proj_FD_LA_EM,
-                'Proj_LD_FA_EM': Proj_LD_FA_EM,
                 'Proj_LD_LA_EM': Proj_LD_LA_EM,
                 'Mask_Proj': Mask_Proj,
                 'opts_drop': False}
 
     def __len__(self):
-        return self.Amap_all.shape[0]
+        return self.Recon_FD_FA_EM_all.shape[0]
 
 
 if __name__ == '__main__':
