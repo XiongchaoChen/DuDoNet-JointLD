@@ -1,6 +1,6 @@
 # Dual-domain Iterative Network with Adaptive Data Consistency for Joint Denoising and Few-angle Reconstruction of Low-dose Cardiac SPECT 
 
-**_(MICCAI 2023 Workshop, MILLanD)_**
+**_(MICCAI 2023 Workshop, MILLanD 2023)_**
 
 Xiongchao Chen, Bo Zhou, Huidong Xie, Xueqi Guo, Qiong Liu, Albert J. Sinusas, Chi Liu
 
